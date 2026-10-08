@@ -4,13 +4,10 @@
 
 A ficha técnica de gravação chega da gravadora numa planilha feita para gente ler, não para programa:
 um bloco por faixa, rótulo na coluna A e valor na B, e no meio de cada bloco as tabelas de autores,
-editoras e músicos. No trabalho eu montei o importador dessas fichas para o banco de obras e fonogramas.
-Este repositório é uma versão escrita do zero, com fichas fictícias e SQLite no lugar do Oracle.
-
-*In English: importing semi-structured Excel "recording credit sheets" into a database. A row-by-row
-parser that keeps cell references, validation that blocks or warns, a versioned JSON contract between
-parsing and loading, and a one-transaction load with checks before commit, a manifest, dry-run and
-force. Synthetic data.*
+editoras e músicos. No trabalho eu montei o importador dessas fichas para o banco de obras e fonogramas,
+que é Oracle e tem trava de ambiente (rodar contra produção exige pedir e confirmar). Aqui as fichas
+são inventadas e o banco é um SQLite; as regras de conversão que vieram do sistema antigo ficaram de
+fora.
 
 ## Uma ficha
 
@@ -63,7 +60,7 @@ manifesto entra na mesma transação. Ficha já carregada é pulada; ISRC que j�
 conflito. `--force` substitui as faixas antigas sem deixar obra órfã, e `--dry-run` mostra o que seria
 feito e desfaz. Percentual é gravado em centésimos inteiros, para a soma fechar exata.
 
-## A demo
+## Três fichas, uma com erros
 
 ```bash
 python -m venv .venv && source .venv/bin/activate    # Windows: .venv\Scripts\activate
@@ -99,16 +96,3 @@ python -m ficha demo
 Os comandos soltos: `ficha ler planilha.xlsx` (grava o JSON), `ficha carregar ficha.json --banco
 banco.sqlite`, e `ficha processar planilha.xlsx` para os dois passos de uma vez, com `--dry-run` e
 `--force` quando precisar.
-
-## No projeto real
-
-O destino é o Oracle, com as tabelas do sistema de obras e fonogramas, e a execução tem trava de
-ambiente: rodar contra produção exige pedir o ambiente e confirmar. O layout da planilha é o de um
-parceiro específico, e algumas regras de conversão vieram do sistema antigo que fazia essa importação;
-essas ficaram de fora daqui.
-
-## Testes
-
-`pytest` cobre a leitura das fichas geradas (inclusive a célula de cada erro), duração e percentual em
-vários formatos, CPF e CNPJ, ISRC, o hash do contrato, e a carga: reenvio, conflito de ISRC, `--force`,
-`--dry-run` e a checagem que reprova e desfaz a transação.
